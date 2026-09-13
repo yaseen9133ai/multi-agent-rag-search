@@ -19,6 +19,15 @@ flowchart LR
     MODE -- "hybrid<br/>live at ingest time" --> HYB[Chunk text, embed dense + sparse]
     VIS --> QD[(Qdrant collection)]
     HYB --> QD
+
+    classDef input fill:#FF9F1C,stroke:#333,stroke-width:1px,color:#000
+    classDef decision fill:#9B5DE5,stroke:#333,stroke-width:1px,color:#fff
+    classDef process fill:#4D96FF,stroke:#333,stroke-width:1px,color:#fff
+    classDef store fill:#FF6B6B,stroke:#333,stroke-width:1px,color:#fff
+    class PDF input
+    class MODE decision
+    class VIS,HYB process
+    class QD store
 ```
 
 **2. Runtime — answering a question:**
@@ -32,6 +41,21 @@ flowchart LR
     MCPS -- "embed + retrieve" --> QD[(Qdrant collection)]
     MCPS -- rerank --> COHERE[Cohere]
     WEB -- "Exa API" --> EXA[Web search]
+
+    classDef userc fill:#6BCB77,stroke:#333,stroke-width:1px,color:#000
+    classDef supc fill:#FFD93D,stroke:#333,stroke-width:1px,color:#000
+    classDef agentc fill:#4D96FF,stroke:#333,stroke-width:1px,color:#fff
+    classDef mcpc fill:#9B5DE5,stroke:#333,stroke-width:1px,color:#fff
+    classDef storec fill:#FF6B6B,stroke:#333,stroke-width:1px,color:#fff
+    classDef svcc fill:#F72585,stroke:#333,stroke-width:1px,color:#fff
+    classDef webc fill:#00F5D4,stroke:#333,stroke-width:1px,color:#000
+    class USER userc
+    class SUP supc
+    class KB,WEB agentc
+    class MCPS mcpc
+    class QD storec
+    class COHERE svcc
+    class EXA webc
 ```
 
 Both agents' LLM calls also go through **Cohere**. Two things run alongside this on every request but
