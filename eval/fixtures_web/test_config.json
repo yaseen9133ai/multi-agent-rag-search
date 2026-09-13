@@ -1,0 +1,11 @@
+{
+  "criteria": {
+    "routed_to_web_search": 1.0
+  },
+  "custom_metrics": {
+    "routed_to_web_search": {
+      "code_config": { "name": "trajectory_metrics.routed_to_web_search" },
+      "description": "1.0 if the supervisor routed to web_search_agent and called exa_search (tool names; ignores the generated query). Web answer quality is not asserted here — live content drifts."
+    }
+  }
+}

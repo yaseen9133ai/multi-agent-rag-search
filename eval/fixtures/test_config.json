@@ -1,0 +1,11 @@
+{
+  "criteria": {
+    "delegated_and_retrieved": 1.0
+  },
+  "custom_metrics": {
+    "delegated_and_retrieved": {
+      "code_config": { "name": "trajectory_metrics.delegated_and_retrieved" },
+      "description": "1.0 if the agent delegated to kb_agent and called search_article (checks tool NAMES; ignores the model-generated query arg, which varies run-to-run). Answer quality lives in the judge suite."
+    }
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "eval_set_id": "report_qa_set",
+  "name": "CBUAE quarterly report — bilingual QA",
+  "description": "Grounded QA over the CBUAE Quarterly Economic Report (March 2026) corpus ingested into Qdrant: happy-path questions spanning trade, sectoral GDP, and interest rates, including one Arabic-language case to exercise the bilingual OCR pipeline. Scored by the LLM-judge criteria in test_config.json (final_response_match_v2 + hallucinations_v1). Kept deliberately small so routine judge runs do not exhaust API/quota.",
+  "eval_cases": [
+    {
+      "eval_id": "uae_non_oil_trade",
+      "conversation": [
+        {
+          "invocation_id": "uae_non_oil_trade-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "According to the report, what was the value of the UAE's non-oil foreign trade in the first nine months of 2025, and by how much did it grow year-on-year?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "According to the report, the UAE's non-oil foreign trade rose 24.5% year-on-year to AED 2,530 billion in the first nine months of 2025."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "transfer_to_agent",
+                "args": {
+                  "agent_name": "kb_agent"
+                }
+              },
+              {
+                "name": "search_article",
+                "args": {
+                  "query": "UAE non-oil foreign trade value 2025 growth"
+                }
+              }
+            ],
+            "intermediate_responses": []
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "research_assistant",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "non_oil_gdp_sectors",
+      "conversation": [
+        {
+          "invocation_id": "non_oil_gdp_sectors-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Which sectors drove non-oil GDP growth in the first three quarters of 2025, and how does their combined contribution compare to that of the remaining eleven sectors relative to their respective shares of non-oil GDP?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "The report says non-oil real GDP grew 6.1% year-on-year in the first three quarters of 2025. The top five contributing sectors were financial activities and insurance (13.2% share of non-oil GDP, 9.0% growth, 1.2 percentage-point contribution), construction (11.6% share, 8.7% growth, 1.0pp), manufacturing (13.8% share, 6.9% growth, 0.9pp), real estate activities (7.8% share, 7.9% growth, 0.6pp), and wholesale and retail trade (16.5% share, 3.5% growth, 0.6pp) — together contributing 4.3 percentage points. The remaining eleven sectors held a larger combined share of non-oil GDP (36.6%) but grew more slowly (5.0%), contributing only 1.8 percentage points despite their larger size."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "transfer_to_agent",
+                "args": {
+                  "agent_name": "kb_agent"
+                }
+              },
+              {
+                "name": "search_article",
+                "args": {
+                  "query": "sectors non-oil GDP growth contribution 2025"
+                }
+              }
+            ],
+            "intermediate_responses": []
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "research_assistant",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "interest_rates",
+      "conversation": [
+        {
+          "invocation_id": "interest_rates-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "What interest rates does the report cite for the CBUAE and the U.S. Federal Reserve, and as of when?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "As of mid-February 2026, the report states the CBUAE cut its base rate to 3.65% in December 2025 and held it steady in January 2026, tracking the U.S. Federal Reserve, which kept its federal funds target range at 3.50%-3.75% at its January meeting."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "transfer_to_agent",
+                "args": {
+                  "agent_name": "kb_agent"
+                }
+              },
+              {
+                "name": "search_article",
+                "args": {
+                  "query": "CBUAE base rate Federal Reserve target range"
+                }
+              }
+            ],
+            "intermediate_responses": []
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "research_assistant",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "gdp_growth_arabic",
+      "conversation": [
+        {
+          "invocation_id": "gdp_growth_arabic-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "وفقاً للتقرير، كم بلغت نسبة نمو الناتج المحلي الإجمالي الحقيقي في دولة الإمارات خلال الأرباع الثلاثة الأولى من عام 2025، وما العامل الرئيسي وراء هذا النمو؟"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "وفقاً للتقرير، سجل الناتج المحلي الإجمالي الحقيقي في دولة الإمارات نمواً بنسبة 5.1% على أساس سنوي خلال الأرباع الثلاثة الأولى من عام 2025، مدفوعاً بنمو قوي في القطاع غير النفطي بنسبة 6.1% على أساس سنوي، وانتعاش الناتج المحلي الإجمالي النفطي بنسبة 6.5% في الربع الثالث من عام 2025."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "transfer_to_agent",
+                "args": {
+                  "agent_name": "kb_agent"
+                }
+              },
+              {
+                "name": "search_article",
+                "args": {
+                  "query": "نمو الناتج المحلي الإجمالي الإمارات 2025"
+                }
+              }
+            ],
+            "intermediate_responses": []
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "research_assistant",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    }
+  ]
+}

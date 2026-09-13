@@ -1,0 +1,30 @@
+{
+  "_comment": "The committed score floor for the golden datasets. The regression gate (compare_to_baseline.py) runs each dataset at these thresholds; if any criterion drops below its floor, the gate fails and the merge is blocked. After a genuine improvement, RAISE these numbers to ratchet the baseline up so the agent can't silently regress back. Re-capture fixtures from real `adk web` sessions before committing.",
+  "_judge_note": "The judge runs on VERTEX AI (see deploy/.env: GOOGLE_GENAI_USE_VERTEXAI=TRUE + GOOGLE_CLOUD_PROJECT/LOCATION, auth via `gcloud auth application-default login`), billed to the GCP project / free-trial credits. judge_datasets points at fixtures_judge/report_qa.evalset.json (4 happy-path cases). The MERGE GATE scores final_response_match_v2 ONLY (criteria below) to stay always-green — it reads its criteria from THIS file, not the dataset's test_config.json. (The default `make eval-judge` also scores final_response_match_v2 only; hallucinations_v1 is an opt-in there, see fixtures_judge/test_config.json's _groundedness_optin.) We keep the gate off hallucinations_v1 because it fires two extra judge calls per response and returns NOT_EVALUATED (a hard fail) whenever either hiccups. To make the gate stricter, add a hallucinations_v1 entry to the criteria below — best on paid quota.",
+  "datasets": [
+    {
+      "path": "fixtures/kb_search.test.json",
+      "criteria": {
+        "delegated_and_retrieved": 1.0
+      },
+      "custom_metrics": {
+        "delegated_and_retrieved": {
+          "code_config": { "name": "trajectory_metrics.delegated_and_retrieved" },
+          "description": "Agent delegated to kb_agent and called search_article (tool names; ignores the generated query). Answer quality is the judge_datasets' job."
+        }
+      }
+    }
+  ],
+  "judge_datasets": [
+    {
+      "path": "fixtures_judge/report_qa.evalset.json",
+      "num_runs": 1,
+      "criteria": {
+        "final_response_match_v2": {
+          "threshold": 0.5,
+          "judge_model_options": { "judge_model": "gemini-2.5-flash" }
+        }
+      }
+    }
+  ]
+}

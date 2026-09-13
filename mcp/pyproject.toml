@@ -1,0 +1,24 @@
+[project]
+name = "mcp-search-server"
+version = "0.1.0"
+description = "Stdio/Streamable HTTP MCP Search Server"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "mcp>=1.2.1,<2.0.0",
+    "starlette",
+    "uvicorn",
+    "qdrant-client",
+    "cohere",
+    # RETRIEVAL_MODE=hybrid only — BM25 sparse query vectors
+    "fastembed",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "main.py",
+    "src",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

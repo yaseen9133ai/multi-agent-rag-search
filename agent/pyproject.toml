@@ -1,0 +1,39 @@
+[project]
+name = "agent"
+version = "0.1.0"
+description = "Google ADK Agent Service"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "google-adk[google-search]>=2.0.0,<3.0.0",
+    "litellm",
+    "exa-py",
+    "sqlalchemy",
+    "asyncpg",
+    "fastapi",
+    "uvicorn",
+    "mcp>=1.2.1,<2.0.0",
+    # --- OBSERVABILITY — baked into the agent image ---
+    "openinference-instrumentation-google-adk>=0.1.15",  # auto-instrument ADK → OTel spans
+    "opentelemetry-sdk>=1.42.1,<2.0.0",
+    "opentelemetry-exporter-otlp-proto-http>=1.42.1,<2.0.0",  # OTLP exporter → Phoenix (local dev)
+    "langfuse>=3.0.0",                                        # SDK → Langfuse (production)
+]
+
+[project.optional-dependencies]
+# Host/dev tooling to RUN the eval suite — NOT baked into the image (uv sync --no-dev skips it).
+# Install on your host with:  pip install "./agent[eval]"
+eval = [
+    "google-adk[eval]>=2.0.0,<3.0.0",  # scoring deps (ROUGE, etc.)
+    "pytest",
+    "pytest-asyncio",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "main.py",
+    "src",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

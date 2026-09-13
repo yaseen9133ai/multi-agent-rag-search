@@ -1,0 +1,25 @@
+[project]
+name = "ingestion-job"
+version = "0.1.0"
+description = "Ingestion job to upload OCR text and embeddings to Qdrant"
+dependencies = [
+    "qdrant-client>=1.10.1",
+    "safetensors>=0.4.3",
+    "python-dotenv>=1.0.1",
+    "numpy>=1.26.0",
+    # RETRIEVAL_MODE=hybrid only — chunked-text ingestion
+    "cohere",
+    "pymupdf4llm",
+    "langchain-text-splitters",
+    "fastembed",
+]
+requires-python = ">=3.10"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "main.py",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

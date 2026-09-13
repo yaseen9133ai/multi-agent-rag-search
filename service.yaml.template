@@ -1,0 +1,99 @@
+# Template for the Cloud Run manifest. DO NOT edit service.yaml by hand — it's generated.
+# Run `make configure-service` to render service.yaml from this template + your .env.
+#
+# Only project-identity values are substituted from .env (${PROJECT_ID}, ${CLOUDSQL_INSTANCE},
+# ${DB_USER}, ${QDRANT_COLLECTION}, ${RETRIEVAL_MODE}). The observability block below is HARDCODED on purpose: it's
+# *production* config (tracing ON → Langfuse), independent of your local .env (where tracing is off
+# and points at Phoenix). US users: swap the OTEL endpoint to the us.cloud.langfuse.com host.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: multi-agent-rag-search
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/cloudsql-instances: ${CLOUDSQL_INSTANCE}
+        # Keep CPU allocated for the instance's lifetime (not only during requests) so Langfuse's
+        # background trace exporter can flush between requests. Trade-off: you pay for CPU until the
+        # instance scales to zero.
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      serviceAccountName: agent-assistant-identity@${PROJECT_ID}.iam.gserviceaccount.com
+      containers:
+        # Agent Container: Supervisor Agent delegating to MCP via Streamable HTTP sidecar
+        - name: agent
+          image: gcr.io/${PROJECT_ID}/agent:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: CLOUDSQL_INSTANCE
+              value: "${CLOUDSQL_INSTANCE}"
+            - name: DB_USER
+              value: "${DB_USER}"
+            - name: MCP_SERVER_URL
+              value: "http://localhost:3000/mcp"
+            - name: COHERE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: COHERE_API_KEY
+                  key: latest
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: DB_PASS
+                  key: latest
+            - name: EXAAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: EXAAI_API_KEY
+                  key: latest
+            # ── Observability: production tracing → Langfuse via the Langfuse SDK ──────
+            # The two LANGFUSE_* key secrets must exist BEFORE you deploy (docs/gcp_deployment.md
+            # Step 3b). LANGFUSE_TRACING_ENVIRONMENT tags these as prod traffic so it's easy to tell
+            # apart from the labs in one shared project. (Local dev uses Phoenix instead — see .env.)
+            - name: OBSERVABILITY_ENABLED
+              value: "true"
+            - name: LANGFUSE_HOST
+              value: "https://cloud.langfuse.com"   # EU; US: https://us.cloud.langfuse.com
+            - name: LANGFUSE_TRACING_ENVIRONMENT
+              value: "production"
+            - name: LANGFUSE_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: LANGFUSE_PUBLIC_KEY
+                  key: latest
+            - name: LANGFUSE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: LANGFUSE_SECRET_KEY
+                  key: latest
+
+        # MCP Search Container: Streamable HTTP server serving tool endpoints on localhost:3000
+        - name: mcp
+          image: gcr.io/${PROJECT_ID}/mcp:latest
+          env:
+            - name: PORT
+              value: "3000"
+            - name: QDRANT_COLLECTION
+              value: "${QDRANT_COLLECTION}"
+            - name: RETRIEVAL_MODE
+              value: "${RETRIEVAL_MODE}"
+            - name: COHERE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: COHERE_API_KEY
+                  key: latest
+            - name: QDRANT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: QDRANT_URL
+                  key: latest
+            - name: QDRANT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: QDRANT_API_KEY
+                  key: latest

@@ -1,0 +1,31 @@
+{
+  "eval_set_id": "web_search_set",
+  "name": "web_search",
+  "description": "The supervisor routes a 'latest news / open web' question to web_search_agent, which calls exa_search. Scored by the routed_to_web_search custom metric (tool NAMES only) — the query arg and final_response are ILLUSTRATIVE, and answer quality is intentionally NOT asserted because live web content drifts. See eval/README.md.",
+  "eval_cases": [
+    {
+      "eval_id": "route_to_web_and_search",
+      "conversation": [
+        {
+          "invocation_id": "inv-web-0001",
+          "user_content": {
+            "parts": [{ "text": "What's the latest news on AI regulation this week?" }],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [{ "text": "(illustrative — the live web answer varies run to run)" }],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "web_search_agent" } },
+              { "name": "exa_search", "args": { "query": "latest AI regulation news" } }
+            ],
+            "intermediate_responses": []
+          }
+        }
+      ],
+      "session_input": { "app_name": "research_assistant", "user_id": "eval_user", "state": {} }
+    }
+  ]
+}

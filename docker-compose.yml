@@ -1,0 +1,101 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER:-app}
+      - POSTGRES_PASSWORD=${DB_PASS:-password}
+      - POSTGRES_DB=sessions
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d sessions"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  agent:
+    build:
+      context: ./agent
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      mcp:
+        condition: service_started
+      phoenix:
+        condition: service_started
+    environment:
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - EXAAI_API_KEY=${EXAAI_API_KEY}
+      - SESSIONS_DB_URL=postgresql+asyncpg://${DB_USER:-app}:${DB_PASS:-password}@db:5432/sessions
+      - MCP_SERVER_URL=http://mcp:3000/mcp
+      - PORT=8080
+      # Observability — ON by default locally, exporting to the in-network Phoenix UI.
+      # It's the same env toggle production uses (just pointed at Langfuse there): set
+      # OBSERVABILITY_ENABLED=false in your .env to run the stack without tracing.
+      - OBSERVABILITY_ENABLED=${OBSERVABILITY_ENABLED:-true}
+      - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME:-multi-agent-rag-search-local}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-http://phoenix:6006/v1/traces}
+      - OTEL_EXPORTER_OTLP_HEADERS=${OTEL_EXPORTER_OTLP_HEADERS:-}
+    ports:
+      - "8081:8080"
+
+  mcp:
+    build:
+      context: ./mcp
+      dockerfile: Dockerfile
+    depends_on:
+      ingestion:
+        condition: service_completed_successfully
+      qdrant:
+        condition: service_healthy
+    environment:
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=
+      - QDRANT_COLLECTION=${QDRANT_COLLECTION:-documents}
+      # "visual" (default) — page-image search, or "hybrid" — chunked-text dense+BM25 search.
+      # Must match the ingestion service's RETRIEVAL_MODE below (same collection-name suffix).
+      - RETRIEVAL_MODE=${RETRIEVAL_MODE:-visual}
+      - PORT=3000
+    ports:
+      - "3000:3000"
+
+  ingestion:
+    build:
+      context: ./ingestion
+      dockerfile: Dockerfile
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    environment:
+      # Only required when RETRIEVAL_MODE=hybrid (live Cohere dense-embedding calls); unused by
+      # the default "visual" mode, which reads pre-baked embeddings from ingestion/files/.
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_API_KEY=
+      - QDRANT_COLLECTION=${QDRANT_COLLECTION:-documents}
+      - RETRIEVAL_MODE=${RETRIEVAL_MODE:-visual}
+      # hybrid mode only — filename (under ingestion/files/) to extract text from.
+      - INGEST_PDF_FILENAME=${INGEST_PDF_FILENAME:-article.pdf}
+      # visual mode only — basename of the pre-baked <name>.jsonl + <name>.safetensors pair
+      # (under ingestion/files/). Defaults to INGEST_PDF_FILENAME's basename when unset.
+      - INGEST_DOC_BASENAME=${INGEST_DOC_BASENAME:-my_document}
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Local trace UI. Starts with the stack by default, so traces are there without extra steps.
+  # Same Docker network, so the agent reaches it at http://phoenix:6006/v1/traces. UI on localhost:6006.
+  # (Don't want it? `OBSERVABILITY_ENABLED=false docker compose up` runs the app without exporting.)
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    ports:
+      - "6006:6006"   # UI + OTLP/HTTP trace collector

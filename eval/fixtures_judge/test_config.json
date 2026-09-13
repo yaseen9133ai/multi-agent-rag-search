@@ -1,0 +1,15 @@
+{
+  "_comment": "LLM-judge criteria for report_qa.evalset.json (4 happy-path cases). DEFAULT = final_response_match_v2 ONLY, so `make eval-judge` is reliably green. We deliberately keep hallucinations_v1 OUT of the default: it fires two sequential judge calls per response (segment + validate) and returns NOT_EVALUATED (None) whenever EITHER hiccups, which ADK treats as a HARD FAIL regardless of threshold (num_samples does not help — this metric ignores it). That made routine runs flaky. Cost per run (num_runs=1, 4 cases): final_response_match_v2 = 4 x 2 = 8 Gemini calls, plus ~12-20 Cohere agent calls. TO OPT INTO GROUNDEDNESS (best on paid quota): copy the block under _groundedness_optin below into `criteria` (adds ~8 more Gemini calls and the flakiness above). The merge gate (`make gate-judge` / ../baseline.json) reads its own criteria and always scores final_response_match_v2 only.",
+  "criteria": {
+    "final_response_match_v2": {
+      "threshold": 0.6,
+      "judge_model_options": { "judge_model": "gemini-2.5-flash", "num_samples": 2 }
+    }
+  },
+  "_groundedness_optin": {
+    "hallucinations_v1": {
+      "threshold": 0.7,
+      "judge_model_options": { "judge_model": "gemini-2.5-flash", "num_samples": 1 }
+    }
+  }
+}

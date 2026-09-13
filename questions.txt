@@ -1,0 +1,21 @@
+Sample manual test questions for the ingested CBUAE Quarterly Economic Report (March 2026, bilingual
+Arabic/English). Ask these at /dev-ui to sanity-check retrieval and citation before relying on the
+automated eval suite (eval/).
+
+Q1 (Direct retrieval):
+EN: According to the report, what was the value of the UAE's non-oil foreign trade in the first nine months of 2025, and by how much did it grow year-on-year?
+AR: وفقاً للتقرير، ما قيمة التجارة الخارجية غير النفطية لدولة الإمارات في الأشهر التسعة الأولى من عام 2025، وما نسبة نموها على أساس سنوي؟
+
+Q2 (Multi-fact synthesis):
+EN: Which sectors drove non-oil GDP growth in the first three quarters of 2025, and how does their combined contribution compare to that of the remaining eleven sectors relative to their respective shares of non-oil GDP?
+AR: ما القطاعات التي قادت نمو الناتج المحلي الإجمالي غير النفطي في الأرباع الثلاثة الأولى من عام 2025، وكيف تقارن مساهمتها المجمّعة بمساهمة القطاعات الإحدى عشر المتبقية قياساً بحصة كل منها من الناتج المحلي غير النفطي؟
+
+Q3 (Grounded fact + reasoning beyond the document — should trigger a web-search fallback for the second half):
+EN: The report states the CBUAE base rate is 3.65% and the Fed's target range is 3.50–3.75%, with data as of mid-February 2026. Are these rates still in effect today, and has the market's expected direction for rates changed since the report was written?
+AR: يذكر التقرير أن سعر الفائدة الأساسي للمصرف المركزي يبلغ 3.65% وأن النطاق المستهدف للاحتياطي الفيدرالي هو 3.50%–3.75%، علماً بأن تاريخ بيانات التقرير هو منتصف فبراير 2026. هل ما زالت هذه الأسعار سارية حتى اليوم؟ وهل تغيّر اتجاه توقعات السوق لأسعار الفائدة منذ إعداد التقرير؟
+
+What these demonstrate:
+- Q1: basic bilingual retrieval + accurate answer generation from the OCR'd Arabic source.
+- Q2: synthesizing a multi-row table (Table 2.2) into a comparative answer.
+- Q3: the supervisor should answer the grounded half from kb_agent, then delegate the "still in
+  effect today?" half to web_search_agent since that's outside the report's knowledge cutoff.

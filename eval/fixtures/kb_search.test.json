@@ -1,0 +1,35 @@
+{
+  "eval_set_id": "kb_search_set",
+  "name": "kb_search",
+  "description": "Happy path: the supervisor delegates to kb_agent, which calls search_article and answers with a citation. The deterministic gate scores this with the `delegated_and_retrieved` custom metric (trajectory_metrics.py), which checks only the tool NAMES — so the `query` arg and `final_response` below are ILLUSTRATIVE (the model generates a different query each run, and answer quality is the judge suite's job). See eval/README.md.",
+  "eval_cases": [
+    {
+      "eval_id": "kb_delegate_search_answer",
+      "conversation": [
+        {
+          "invocation_id": "inv-0001",
+          "user_content": {
+            "parts": [{ "text": "What does the report say about UAE non-oil GDP growth?" }],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [{ "text": "According to the internal documentation (CBUAE Quarterly Economic Report, March 2026), non-oil real GDP grew 6.1% year-on-year in the first three quarters of 2025, led by financial services and insurance, construction, and manufacturing." }],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              { "name": "transfer_to_agent", "args": { "agent_name": "kb_agent" } },
+              { "name": "search_article", "args": { "query": "UAE non-oil GDP growth 2025" } }
+            ],
+            "intermediate_responses": []
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "research_assistant",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    }
+  ]
+}

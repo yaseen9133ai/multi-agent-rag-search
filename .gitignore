@@ -1,0 +1,20 @@
+# Secrets — never commit real credentials
+.env
+*.key.json
+langfuse-vertex-key.json
+service.yaml
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Eval artifacts
+eval/__pycache__/
