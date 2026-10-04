@@ -1,3 +1,39 @@
+Q1: What are the main ways nature-related risks can financially impact palm oil companies?  (Direct retrieval)
+
+
+Expected answer should identify revenues, costs, asset valuations, and cost of capital.
+
+What it demonstrates:
+Basic PDF retrieval + accurate answer generation.
+
+
+
+Q2: How can climate change affect palm oil yields in Malaysia, and what could this mean financially for the country?  (Multi-hop)
+
+The report states that a 1–4°C temperature rise in Malaysia could reduce yields by 10–41%, while under the highest-emission scenario temperatures could rise 3.11°C by 2090, potentially reducing Malaysian GDP by MYR 3.7–15 billion.
+
+What it demonstrates:
+Multi-hop retrieval across the climate-risk discussion and its financial-impact section.
+
+
+Q3: The report identifies climate change as a risk to palm oil yields in Malaysia. What financial impacts can result from declining yields, and what does the report say financial institutions can do to reduce their exposure to these risks?  (Cross-section reasoning)
+
+agent should connect multiple parts of the document:
+
+Risk → mitigation → sustainability improvement → financial opportunity
+
+What it demonstrates:
+This is much closer to a genuine Agentic RAG / multi-hop reasoning task because the answer requires:
+retrieving and synthesizing information from different parts of the report rather than finding one matching paragraph.
+
+Q4: In 2026, what are the latest news about climate change affect palm oil yields in Malaysia?
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
 Sample manual test questions for the ingested CBUAE Quarterly Economic Report (March 2026, bilingual
 Arabic/English). Ask these at /dev-ui to sanity-check retrieval and citation before relying on the
 automated eval suite (eval/).
