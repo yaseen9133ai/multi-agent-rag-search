@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Google ADK Agent Service"
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "google-adk[google-search]>=2.0.0,<3.0.0",
+    "google-adk[db]>=2.0.0,<3.0.0",  # [db] → sqlalchemy[asyncio] for the Postgres session store
     "litellm",
     "exa-py",
     "sqlalchemy",
